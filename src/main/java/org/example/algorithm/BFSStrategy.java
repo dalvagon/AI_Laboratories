@@ -5,7 +5,10 @@ import lombok.Data;
 import org.example.Problem;
 import org.example.State;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 public class BFSStrategy extends Algorithm {
 
@@ -45,8 +48,8 @@ public class BFSStrategy extends Algorithm {
                     fillSecondJug(currentState)
             );
 
-            for(State state : states) {
-                if(!visited.contains(state)) {
+            for (State state : states) {
+                if (!visited.contains(state)) {
                     nodes.add(new Node(state, node));
                 }
             }
@@ -54,7 +57,7 @@ public class BFSStrategy extends Algorithm {
     }
 
     private void printSolution(Node node) {
-        if(node != null) {
+        if (node != null) {
             printSolution(node.previous);
             System.out.println(node.getState());
         }

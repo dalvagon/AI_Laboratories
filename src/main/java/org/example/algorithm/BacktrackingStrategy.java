@@ -1,7 +1,7 @@
 package org.example.algorithm;
 
-import org.example.State;
 import org.example.Problem;
+import org.example.State;
 
 import java.util.List;
 
@@ -29,10 +29,10 @@ public class BacktrackingStrategy extends Algorithm {
                 fillSecondJug(currentState)
         );
 
-        for(State state : states) {
-            if(isValid(state)) {
+        for (State state : states) {
+            if (isValid(state)) {
                 solution.addState(state);
-                if(problem.isFinal(state)) {
+                if (problem.isFinal(state)) {
                     System.out.println("Found a new solution:\n" + solution);
                 } else {
                     backtrack();

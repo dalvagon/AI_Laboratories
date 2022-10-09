@@ -1,6 +1,9 @@
 package org.example;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Objects;
 
@@ -14,7 +17,7 @@ public class State {
 
     @Override
     public String toString() {
-        return "("+ first + ", " + second + ")";
+        return "(" + first + ", " + second + ")";
     }
 
     @Override

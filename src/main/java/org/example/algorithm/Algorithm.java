@@ -1,9 +1,9 @@
 package org.example.algorithm;
 
 import lombok.RequiredArgsConstructor;
-import org.example.State;
 import org.example.Problem;
 import org.example.Solution;
+import org.example.State;
 
 @RequiredArgsConstructor
 public abstract class Algorithm {

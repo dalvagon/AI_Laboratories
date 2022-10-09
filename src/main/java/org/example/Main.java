@@ -22,20 +22,16 @@ public class Main {
             int strategyNumber = input.nextInt();
             Problem problem = new Problem(firstJugCapacity, secondJugCapacity, desiredOutput);
 
+            if (!problem.isSolvable()) {
+                continue;
+            }
+
             if (strategyNumber == 1) {
                 solveWithBacktrackingStrategy(problem);
             } else if (strategyNumber == 2) {
                 solveWithBFSStrategy(problem);
             }
-
-//            switch (strategyNumber) {
-//                case 1: solveWithBacktrackingAlgorithm(problem);
-//                case 2: solveWithBFSStrategy(problem);
-//            }
         }
-
-//        Problem problem = new Problem(9, 4, 6);
-//        solveWithBacktrackingAlgorithm(problem);
     }
 
     private static void solveWithBacktrackingStrategy(Problem problem) {
