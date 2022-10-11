@@ -15,16 +15,18 @@ public class Main {
             int secondJugCapacity = input.nextInt();
             int desiredOutput = input.nextInt();
 
+            Problem problem = new Problem(firstJugCapacity, secondJugCapacity, desiredOutput);
+
+            if (!problem.isSolvable()) {
+                System.out.println("This instance of the problem is not solvable");
+                continue;
+            }
+
             System.out.println("Enter the number of the strategy you wish to solve the water jug problem with: ");
             System.out.println("1. Backtracking strategy");
             System.out.println("2. BFS strategy");
 
             int strategyNumber = input.nextInt();
-            Problem problem = new Problem(firstJugCapacity, secondJugCapacity, desiredOutput);
-
-            if (!problem.isSolvable()) {
-                continue;
-            }
 
             if (strategyNumber == 1) {
                 solveWithBacktrackingStrategy(problem);

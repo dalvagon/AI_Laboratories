@@ -27,7 +27,7 @@ public abstract class Algorithm {
     }
 
     protected State transferIntoFirstJug(State state) {
-        State newState = new State();
+        State newState;
         int firstJugFreeSpace = problem.getFirstJugCapacity() - state.getFirst();
         if (firstJugFreeSpace <= state.getSecond()) {
             newState = fillFirstJug(state);
@@ -41,7 +41,7 @@ public abstract class Algorithm {
     }
 
     protected State transferIntoSecondJug(State state) {
-        State newState = new State();
+        State newState;
         int secondJugFreeSpace = problem.getSecondJugCapacity() - state.getSecond();
         if (secondJugFreeSpace <= state.getFirst()) {
             newState = fillSecondJug(state);

@@ -15,7 +15,8 @@ public class Problem {
     }
 
     public boolean isFinal(State state) {
-        return (desiredOutput == state.getFirst() && 0 == state.getSecond()) || (desiredOutput == state.getSecond() && 0 == state.getFirst());
+        return (desiredOutput == state.getFirst() && 0 == state.getSecond()) ||
+                (desiredOutput == state.getSecond() && 0 == state.getFirst());
     }
 
     public boolean isSolvable() {

@@ -32,7 +32,9 @@ public class BacktrackingStrategy extends Algorithm {
         for (State state : states) {
             if (isValid(state)) {
                 solution.addState(state);
+                System.out.println(state);
                 if (problem.isFinal(state)) {
+//                    System.out.println("Final" + state);
                     System.out.println("Found a new solution:\n" + solution);
                 } else {
                     backtrack();
