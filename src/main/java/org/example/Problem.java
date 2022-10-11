@@ -19,7 +19,9 @@ public class Problem {
     }
 
     public boolean isSolvable() {
-        return desiredOutput % gcd(firstJugCapacity, secondJugCapacity) == 0;
+        return firstJugCapacity > 0 && secondJugCapacity > 0 &&
+                (desiredOutput <= firstJugCapacity || desiredOutput <= secondJugCapacity) &&
+                desiredOutput % gcd(firstJugCapacity, secondJugCapacity) == 0;
     }
 
     private int gcd(int x, int y) {
