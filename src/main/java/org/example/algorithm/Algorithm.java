@@ -5,6 +5,9 @@ import org.example.Problem;
 import org.example.Solution;
 import org.example.State;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RequiredArgsConstructor
 public abstract class Algorithm {
     protected final Problem problem;
@@ -16,6 +19,22 @@ public abstract class Algorithm {
         solution = new Solution();
 
         solution.addState(problem.getInitialState());
+    }
+
+    public List<State> getAvailableStates(State state) {
+        List<State> availableStates = new java.util.ArrayList<>(List.of(
+                emptyFirstJug(state),
+                emptySecondJug(state),
+                transferIntoFirstJug(state),
+                transferIntoSecondJug(state),
+                fillFirstJug(state),
+                fillSecondJug(state)
+        ));
+
+        availableStates = availableStates.stream().distinct().collect(Collectors.toList());
+        availableStates.remove(state);
+
+        return availableStates;
     }
 
     protected State fillFirstJug(State state) {

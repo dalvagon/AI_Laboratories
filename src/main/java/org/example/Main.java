@@ -1,8 +1,6 @@
 package org.example;
 
-import org.example.algorithm.Algorithm;
-import org.example.algorithm.BFSStrategy;
-import org.example.algorithm.BacktrackingStrategy;
+import org.example.algorithm.*;
 
 import java.util.Scanner;
 
@@ -25,6 +23,8 @@ public class Main {
             System.out.println("Enter the number of the strategy you wish to solve the water jug problem with: ");
             System.out.println("1. Backtracking strategy");
             System.out.println("2. BFS strategy");
+            System.out.println("3. Hillclimbing strategy");
+            System.out.println("4. A* strategy");
 
             int strategyNumber = input.nextInt();
 
@@ -32,6 +32,10 @@ public class Main {
                 solveWithBacktrackingStrategy(problem);
             } else if (strategyNumber == 2) {
                 solveWithBFSStrategy(problem);
+            } else if (strategyNumber == 3) {
+                solveWithHillclimbingStrategy(problem);
+            } else if (strategyNumber == 4) {
+                solveWithAStarStrategy(problem);
             }
         }
     }
@@ -44,6 +48,18 @@ public class Main {
 
     private static void solveWithBFSStrategy(Problem problem) {
         Algorithm algorithm = new BFSStrategy(problem);
+        algorithm.initialize();
+        algorithm.solve();
+    }
+
+    private static void solveWithHillclimbingStrategy(Problem problem) {
+        Algorithm algorithm = new HillClimbingStrategy(problem);
+        algorithm.initialize();
+        algorithm.solve();
+    }
+
+    private static void solveWithAStarStrategy(Problem problem) {
+        Algorithm algorithm = new AStarStrategy(problem);
         algorithm.initialize();
         algorithm.solve();
     }

@@ -20,21 +20,13 @@ public class BacktrackingStrategy extends Algorithm {
 
     private void backtrack() {
         State currentState = solution.getLastState();
-        List<State> states = List.of(
-                emptyFirstJug(currentState),
-                emptySecondJug(currentState),
-                transferIntoFirstJug(currentState),
-                transferIntoSecondJug(currentState),
-                fillFirstJug(currentState),
-                fillSecondJug(currentState)
-        );
+        List<State> states = getAvailableStates(currentState);
 
         for (State state : states) {
             if (isValid(state)) {
                 solution.addState(state);
                 System.out.println(state);
                 if (problem.isFinal(state)) {
-//                    System.out.println("Final" + state);
                     System.out.println("Found a new solution:\n" + solution);
                 } else {
                     backtrack();

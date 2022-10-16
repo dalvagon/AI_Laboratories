@@ -39,14 +39,7 @@ public class BFSStrategy extends Algorithm {
             }
 
             State currentState = node.getState();
-            List<State> states = List.of(
-                    emptyFirstJug(currentState),
-                    emptySecondJug(currentState),
-                    transferIntoFirstJug(currentState),
-                    transferIntoSecondJug(currentState),
-                    fillFirstJug(currentState),
-                    fillSecondJug(currentState)
-            );
+            List<State> states = getAvailableStates(currentState);
 
             for (State state : states) {
                 if (!visited.contains(state)) {
