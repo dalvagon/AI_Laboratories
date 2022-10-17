@@ -27,12 +27,12 @@ public class HillClimbingStrategy extends Algorithm {
                 return;
             }
 
-            List<State> states = getAvailableStates(currentState);
+            List<State> states = getNeighborStates(currentState);
             states.removeAll(solution.getStates());
-            State bestAccessibleState = states.stream().min(Comparator.comparingInt(this::heuristic)).get();
+            State bestAccessibleState = states.stream().max(Comparator.comparingInt(this::heuristic)).get();
 
             if (solution.getStates().contains(bestAccessibleState)) {
-                System.out.println("No solution could be found");
+                System.out.println("No solution could be fomund");
                 return;
             }
 
@@ -41,12 +41,10 @@ public class HillClimbingStrategy extends Algorithm {
     }
 
     private int heuristic(State state) {
-        return Math.abs(problem.getFirstJugCapacity() + problem.getSecondJugCapacity() - problem.getDesiredOutput() - state.getFirst() - state.getSecond());
+        return (Math.abs(state.getFirst() - problem.getDesiredOutput())) * (-1);
     }
 
     private void printSolution() {
-        for (State state : solution.getStates()) {
-            System.out.println(state + " " + heuristic(state));
-        }
+        System.out.println(solution);
     }
 }

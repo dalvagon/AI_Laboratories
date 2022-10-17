@@ -20,7 +20,7 @@ public class BacktrackingStrategy extends Algorithm {
 
     private void backtrack() {
         State currentState = solution.getLastState();
-        List<State> states = getAvailableStates(currentState);
+        List<State> states = getNeighborStates(currentState);
 
         for (State state : states) {
             if (isValid(state)) {

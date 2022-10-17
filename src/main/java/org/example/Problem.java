@@ -14,6 +14,14 @@ public class Problem {
         return new State(0, 0);
     }
 
+    public State getFinalState() {
+        if (desiredOutput > firstJugCapacity) {
+            return new State(0, desiredOutput);
+        }
+
+        return new State(desiredOutput, 0);
+    }
+
     public boolean isFinal(State state) {
         return (desiredOutput == state.getFirst() && 0 == state.getSecond()) ||
                 (desiredOutput == state.getSecond() && 0 == state.getFirst());

@@ -21,7 +21,7 @@ public abstract class Algorithm {
         solution.addState(problem.getInitialState());
     }
 
-    public List<State> getAvailableStates(State state) {
+    public List<State> getNeighborStates(State state) {
         List<State> availableStates = new java.util.ArrayList<>(List.of(
                 emptyFirstJug(state),
                 emptySecondJug(state),

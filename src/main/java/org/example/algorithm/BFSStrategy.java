@@ -39,7 +39,7 @@ public class BFSStrategy extends Algorithm {
             }
 
             State currentState = node.getState();
-            List<State> states = getAvailableStates(currentState);
+            List<State> states = getNeighborStates(currentState);
 
             for (State state : states) {
                 if (!visited.contains(state)) {
