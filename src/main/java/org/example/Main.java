@@ -9,7 +9,7 @@ public class Main {
         Game game = new Game();
 
         try {
-            File file = new File("src/main/resources/file.txt");
+            File file = new File("src/main/resources/parsedFile.txt");
             Scanner scanner = new Scanner(file);
 
             while (scanner.hasNextLine()) {
