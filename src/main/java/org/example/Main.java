@@ -9,7 +9,7 @@ public class Main {
         Game game = new Game();
 
         try {
-            File file = new File("src/main/resources/parsedFile.txt");
+            File file = new File("src/main/resources/parsedFile1.txt");
             Scanner scanner = new Scanner(file);
 
             while (scanner.hasNextLine()) {
@@ -19,6 +19,7 @@ public class Main {
 
                 game.addStrategy(new Pair<>(tokens[0], tokens[1]), new Pair<>(Integer.parseInt(tokens[2]), Integer.parseInt(tokens[3])));
             }
+
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }

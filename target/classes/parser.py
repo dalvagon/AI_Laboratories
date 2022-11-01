@@ -1,5 +1,5 @@
-original_file = open("./originalFile.txt", "r")
-parsed_file = open("./parsedFile.txt", "w")
+original_file = open("./originalFile1.txt", "r")
+parsed_file = open("./parsedFile1.txt", "w")
 
 lines = [line.strip() for line in original_file]
 player1_moves = lines[0].split()
