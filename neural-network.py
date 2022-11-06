@@ -46,9 +46,9 @@ class NeuralNetwork:
             self.propagate_backward(input, output, target)
 
     def propagate_forward(self, input):
-        hidden_layer_output = self.hidden_layer.get_output(input)
+        hidden_layer_output = self.hidden_layer.get_layer_output(input)
 
-        return self.output_layer.get_output(hidden_layer_output)
+        return self.output_layer.get_layer_output(hidden_layer_output)
 
     def propagate_backward(self, input, output, target):
         ##################### Output layer #########################
@@ -62,20 +62,23 @@ class NeuralNetwork:
 
         # The partial derivative of the total net input with respect to the weight
         pd_total_net_input_wrt_weigth = [
-            self.hidden_layer.get_output(input)[o] for o in range(0, len(output))
+            self.hidden_layer.get_layer_output(input)[o] for o in range(0, len(output))
+        ]
+
+        gradient = [
+            pd_errors_wrt_output[o] * pd_output_wrt_total_net_input[o]
+            for o in range(0, len(output))
         ]
         ############################################################
 
         ##################### Hidden layer #########################
-        hidden_layer_output = self.hidden_layer.get_output(input)
+        hidden_layer_output = self.hidden_layer.get_layer_output(input)
 
         # The sum of the error gradients times the weight downstream
         pd_errors_wrt_output_hidden = [
             sum(
                 [
-                    pd_errors_wrt_output[o]
-                    * pd_output_wrt_total_net_input[o]
-                    * self.output_layer.neurons[o].weights[h]
+                    gradient[o] * self.output_layer.neurons[o].weights[h]
                     for o in range(0, len(self.output_layer.neurons))
                 ]
             )
@@ -99,10 +102,7 @@ class NeuralNetwork:
         for o in range(0, len(self.output_layer.neurons)):
             for w in range(0, len(self.output_layer.neurons[o].weights)):
                 self.output_layer.neurons[o].weights[w] -= (
-                    self.LEARNING_RATE
-                    * pd_errors_wrt_output[o]
-                    * pd_output_wrt_total_net_input[o]
-                    * pd_total_net_input_wrt_weigth[o]
+                    self.LEARNING_RATE * gradient[o] * pd_total_net_input_wrt_weigth[o]
                 )
 
         # Update hidden layer weights:
@@ -120,8 +120,8 @@ class NeuronLayer:
     def __init__(self, number_of_neurons, bias):
         self.neurons = [Neuron(bias) for i in range(0, number_of_neurons)]
 
-    def get_output(self, input):
-        return [neuron.get_output(input) for neuron in self.neurons]
+    def get_layer_output(self, input):
+        return [neuron.get_neuron_output(input) for neuron in self.neurons]
 
 
 class Neuron:
@@ -129,7 +129,7 @@ class Neuron:
         self.bias = bias
         self.weights = []
 
-    def get_output(self, input):
+    def get_neuron_output(self, input):
         return sigmoid(self.get_total_net_input(input))
 
     def get_total_net_input(self, input):
@@ -160,10 +160,10 @@ if __name__ == "__main__":
     test_instances = data[0:15]
     training_instances = data[15:]
 
-    # print("Training data:")
-    # pprint(training_instances)
-    # print("Test data:")
-    # pprint(test_instances)
+    print("Training data:")
+    pprint(training_instances)
+    print("Test data:")
+    pprint(test_instances)
 
     neural_network = NeuralNetwork(
         4,
@@ -193,7 +193,7 @@ if __name__ == "__main__":
     #     2, 2, 2, [0.15, 0.2, 0.25, 0.3], 0.35, [0.4, 0.45, 0.5, 0.55], 0.6
     # )
 
-    # neural_network.train([[0.05, 0.10]], [[0.01, 0.99]])
+    # neural_network.train([[0.05, 0.10]], [0.01, 0.99])
     # print(
     #     [
     #         neural_network.output_layer.neurons[o].weights
