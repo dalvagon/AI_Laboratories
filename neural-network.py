@@ -1,16 +1,17 @@
 from utils import error, sigmoid, sigmoid_derivative
-import random
 from pprint import pprint
+from numpy import random
 
 
 class NeuralNetwork:
-    LEARNING_RATE = 0.5
+    LEARNING_RATE = 0.01
 
     def __init__(
         self,
         number_of_input,
         number_of_hidden,
         number_of_output,
+        classes,
         hidden_layer_weights,
         hidden_layer_bias,
         ouput_layer_weights,
@@ -19,6 +20,7 @@ class NeuralNetwork:
         self.number_of_input = number_of_input
         self.number_of_hidden = number_of_hidden
         self.number_of_output = number_of_output
+        self.classes = classes
 
         self.hidden_layer = NeuronLayer(number_of_hidden, hidden_layer_bias)
         self.output_layer = NeuronLayer(number_of_output, output_layer_bias)
@@ -40,14 +42,16 @@ class NeuralNetwork:
                 self.output_layer.neurons[o].weights.append(weights[index])
                 index += 1
 
-    def train(self, inputs, target):
-        for input in inputs:
-            output = self.propagate_forward(input)
+    def train(self, instances):
+        for instance in instances:
+            input = instance[0]
+            target = [1 if instance[1] == cls else 0 for cls in self.classes]
+            # target = [0.01, 0.99]
+            output = self.feed_forward(input)
             self.propagate_backward(input, output, target)
 
-    def propagate_forward(self, input):
+    def feed_forward(self, input):
         hidden_layer_output = self.hidden_layer.get_layer_output(input)
-
         return self.output_layer.get_layer_output(hidden_layer_output)
 
     def propagate_backward(self, input, output, target):
@@ -105,6 +109,8 @@ class NeuralNetwork:
                     self.LEARNING_RATE * gradient[o] * pd_total_net_input_wrt_weigth[o]
                 )
 
+            self.output_layer.neurons[o].bias -= self.LEARNING_RATE * gradient[o]
+
         # Update hidden layer weights:
         for h in range(0, len(self.hidden_layer.neurons)):
             for w in range(0, len(self.hidden_layer.neurons[h].weights)):
@@ -114,6 +120,12 @@ class NeuralNetwork:
                     * pd_output_wrt_total_net_input_hidden[h]
                     * pd_total_net_input_wrt_weigth_hidden[h]
                 )
+
+            self.hidden_layer.neurons[h].bias -= (
+                self.LEARNING_RATE
+                * pd_errors_wrt_output_hidden[h]
+                * pd_output_wrt_total_net_input_hidden[h]
+            )
 
 
 class NeuronLayer:
@@ -157,53 +169,92 @@ if __name__ == "__main__":
     input_file = open("./iris.data", "r")
     data = read_data(input_file)
     random.shuffle(data)
-    test_instances = data[0:15]
-    training_instances = data[15:]
+    training_instances = data[10:]
+    test_instances = data[0:10]
+    classes = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
 
-    print("Training data:")
+    print("Training instances:")
     pprint(training_instances)
-    print("Test data:")
+    print("Test instances:")
     pprint(test_instances)
+    print("Classes: " + str(classes))
 
     neural_network = NeuralNetwork(
         4,
         4,
         3,
-        [round(random.uniform(-0.1, 0.1), 2) for i in range(0, 16)],
-        round(random.uniform(-0.1, 0.1), 2),
-        [round(random.uniform(-0.1, 0.1), 2) for i in range(0, 12)],
-        round(random.uniform(-0.1, 0.1), 2),
+        classes,
+        [random.uniform(-0.1, 0.1) for i in range(0, 16)],
+        random.uniform(-0.1, 0.1),
+        [random.uniform(-0.1, 0.1) for i in range(0, 12)],
+        random.uniform(-0.1, 0.1),
     )
 
-    MAX_EPOCH_NUMBER = 1000
-    target = [1 / 3, 1 / 3, 1 / 3]
-    training_data = list(map(lambda instance: instance[0], training_instances))
+    MAX_EPOCH_NUMBER = 2000000
     for count in range(0, MAX_EPOCH_NUMBER):
-        neural_network.train(
-            training_data,
-            target,
+        neural_network.train(training_instances)
+
+    print("######################Validation######################")
+    for test_instance in training_instances:
+        output = neural_network.feed_forward(test_instance[0])
+        decision = classes[output.index(max(output))]
+        colored_decision = (
+            "\033[1m\033[91m" + str(decision) + "\033[0m"
+            if decision != test_instance[1]
+            else "\033[1m\033[92m" + str(decision) + "\033[0m"
         )
 
-    print(
-        "Error: "
-        + str(error(target, neural_network.propagate_forward(training_data[0])))
-    )
+        print("Test instance:")
+        print(test_instance)
+        print("Output: " + str(output) + " -> ", colored_decision)
+    print("######################################################")
+
+    print("######################Test######################")
+    for test_instance in test:
+        output = neural_network.feed_forward(test_instance[0])
+        decision = classes[output.index(max(output))]
+        colored_decision = (
+            "\033[1m\033[91m" + str(decision) + "\033[0m"
+            if decision != test_instance[1]
+            else "\033[1m\033[92m" + str(decision) + "\033[0m"
+        )
+
+        print("Test instance:")
+        print(test_instance)
+        print("Output: " + str(output) + " -> ", colored_decision)
+    print("################################################")
+
+    # input_file = open("./xor.data", "r")
+    # data = read_data(input_file)
+    # random.shuffle(data)
+    # training_instances = data
+    # test_instances = data
+    # classes = [0, 1]
+
+    # print("Training instances:")
+    # pprint(training_instances)
+    # print("Test instances:")
+    # pprint(test_instances)
+    # print("Classes: " + str(classes))
 
     # neural_network = NeuralNetwork(
-    #     2, 2, 2, [0.15, 0.2, 0.25, 0.3], 0.35, [0.4, 0.45, 0.5, 0.55], 0.6
+    #     2,
+    #     2,
+    #     2,
+    #     classes,
+    #     [random.uniform(-0.1, 0.1) for i in range(0, 4)],
+    #     0,
+    #     [random.uniform(-0.1, 0.1) for i in range(0, 4)],
+    #     0,
     # )
 
-    # neural_network.train([[0.05, 0.10]], [0.01, 0.99])
-    # print(
-    #     [
-    #         neural_network.output_layer.neurons[o].weights
-    #         for o in range(0, len(neural_network.output_layer.neurons))
-    #     ]
-    # )
+    # MAX_EPOCH_NUMBER = 1000
+    # for count in range(0, MAX_EPOCH_NUMBER):
+    #     neural_network.train(training_instances)
 
-    # print(
-    #     [
-    #         neural_network.hidden_layer.neurons[h].weights
-    #         for h in range(0, len(neural_network.hidden_layer.neurons))
-    #     ]
-    # )
+    # for test_instance in training_instances:
+    #     output = neural_network.feed_forward(test_instance[0])
+    #     decision = classes[output.index(max(output))]
+    #     print("Test instance:")
+    #     print(test_instance)
+    #     print("Output: " + str(output) + " -> " + str(decision))
