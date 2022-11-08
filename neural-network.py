@@ -56,6 +56,9 @@ class NeuralNetwork:
     def propagate_backward(self, input, output, target):
         ##################### Output layer #########################
         # The partial derivative of the Error with respect to output
+        # total_error = error(target, output)
+        # print(total_error)
+
         pd_errors_wrt_output = [-(target[o] - output[o]) for o in range(0, len(output))]
 
         # The partial derivative of output with respect to the total net input
@@ -191,38 +194,62 @@ if __name__ == "__main__":
         random.uniform(-0.1, 0.1),
     )
 
-    MAX_EPOCH_NUMBER = 1000
+    MAX_EPOCH_NUMBER = 100
     for count in range(0, MAX_EPOCH_NUMBER):
         neural_network.train(training_instances)
 
     print("######################Validation######################")
-    for test_instance in training_instances:
-        output = neural_network.feed_forward(test_instance[0])
+    error_count = 0
+    for instance in training_instances:
+        output = neural_network.feed_forward(instance[0])
         decision = classes[output.index(max(output))]
+
+        if decision != instance[1]:
+            error_count += 1
+
         colored_decision = (
             "\033[1m\033[91m" + str(decision) + "\033[0m"
-            if decision != test_instance[1]
+            if decision != instance[1]
             else "\033[1m\033[92m" + str(decision) + "\033[0m"
         )
 
-        print("Test instance:")
-        print(test_instance)
-        print("Output: " + str(output) + " -> ", colored_decision)
+        print(str(instance) + " " + str(output) + " -> " + colored_decision)
+
+    validation_error = error_count / len(training_instances)
+    print(
+        "Validation accuracy: "
+        + "\033[1m\033[92m"
+        + str((1 - validation_error) * 100)
+        + "%"
+        + "\033[0m"
+    )
     print("######################################################\n")
 
     print("######################Test######################")
+    error_count = 0
     for test_instance in test_instances:
         output = neural_network.feed_forward(test_instance[0])
         decision = classes[output.index(max(output))]
+
+        if decision != test_instance[1]:
+            error_count += 1
+
         colored_decision = (
             "\033[1m\033[91m" + str(decision) + "\033[0m"
             if decision != test_instance[1]
             else "\033[1m\033[92m" + str(decision) + "\033[0m"
         )
 
-        print("Test instance:")
-        print(test_instance)
-        print("Output: " + str(output) + " -> ", colored_decision)
+        print(str(test_instance) + " " + str(output) + " -> " + colored_decision)
+
+    test_error = error_count / len(test_instances)
+    print(
+        "Test accuracy: "
+        + "\033[1m\033[92m"
+        + str((1 - test_error) * 100)
+        + "%"
+        + "\033[0m"
+    )
     print("################################################")
 
     # neural_network = NeuralNetwork(
