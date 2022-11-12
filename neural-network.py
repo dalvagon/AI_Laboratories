@@ -1,10 +1,11 @@
 from utils import error, sigmoid, sigmoid_derivative
 from pprint import pprint
-from numpy import random
+from numpy import random, array
+import matplotlib.pyplot as plt
 
 
 class NeuralNetwork:
-    LEARNING_RATE = 0.5
+    LEARNING_RATE = 0.1
 
     def __init__(
         self,
@@ -43,11 +44,15 @@ class NeuralNetwork:
                 index += 1
 
     def train(self, instances):
+        total_error = 0
         for instance in instances:
             input = instance[0]
             target = [1 if cls == instance[1] else 0 for cls in self.classes]
             output = self.feed_forward(input)
+            total_error += error(target, output)
             self.propagate_backward(input, output, target)
+
+        return total_error
 
     def feed_forward(self, input):
         hidden_layer_output = self.hidden_layer.get_layer_output(input)
@@ -55,11 +60,16 @@ class NeuralNetwork:
 
     def propagate_backward(self, input, output, target):
         ##################### Output layer #########################
-        # The partial derivative of the Error with respect to output
+        # Individual errors
+        # errors = [0.5 * pow((target[o] - output[o]), 2) for o in range(0, len(output))]
+        # print(errors)
+
+        # Total error
         # total_error = error(target, output)
         # print(total_error)
 
-        pd_errors_wrt_output = [-(target[o] - output[o]) for o in range(0, len(output))]
+        # The partial derivative of the Error with respect to output
+        pd_errors_wrt_output = [(output[o] - target[o]) for o in range(0, len(output))]
 
         # The partial derivative of output with respect to the total net input
         pd_output_wrt_total_net_input = [
@@ -176,27 +186,27 @@ if __name__ == "__main__":
     training_instances = data[10:]
     test_instances = data[0:10]
     classes = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
-
-    print("Training instances:")
-    pprint(training_instances)
-    print("Test instances:")
-    pprint(test_instances)
-    print("Classes: " + str(classes))
+    training_error_values = []
+    test_error_values = []
 
     neural_network = NeuralNetwork(
         4,
         4,
         3,
         classes,
-        [random.uniform(-0.1, 0.1) for i in range(0, 16)],
-        random.uniform(-0.1, 0.1),
-        [random.uniform(-0.1, 0.1) for i in range(0, 12)],
-        random.uniform(-0.1, 0.1),
+        [random.uniform(-1, 1) for i in range(0, 16)],
+        random.uniform(-1, 1),
+        [random.uniform(-1, 1) for i in range(0, 12)],
+        random.uniform(-1, 1),
     )
 
-    MAX_EPOCH_NUMBER = 100
+    MAX_EPOCH_NUMBER = 1000
+    print("###################### Training ######################")
     for count in range(0, MAX_EPOCH_NUMBER):
-        neural_network.train(training_instances)
+        total_error = neural_network.train(training_instances)
+        training_error_values.append(total_error)
+
+    print("######################################################\n")
 
     print("######################Validation######################")
     error_count = 0
@@ -252,25 +262,5 @@ if __name__ == "__main__":
     )
     print("################################################")
 
-    # neural_network = NeuralNetwork(
-    #     2, 2, 2, [0.01, 0.99], [0.15, 0.2, 0.25, 0.3], 0.35, [0.4, 0.45, 0.5, 0.55], 0.6
-    # )
-
-    # for count in range(0, 10000):
-    #     neural_network.train([[0.05, 0.10]])
-
-    # print(neural_network.feed_forward([0.05, 0.10]))
-
-    # print(
-    #     [
-    #         neural_network.output_layer.neurons[o].weights
-    #         for o in range(0, len(neural_network.output_layer.neurons))
-    #     ]
-    # )
-
-    # print(
-    #     [
-    #         neural_network.hidden_layer.neurons[h].weights
-    #         for h in range(0, len(neural_network.hidden_layer.neurons))
-    #     ]
-    # )
+    plt.plot(array(training_error_values))
+    plt.show()
