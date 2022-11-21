@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 
 class NeuralNetwork:
-    LEARNING_RATE = 0.1
+    LEARNING_RATE = 0.01
 
     def __init__(
         self,
@@ -32,14 +32,14 @@ class NeuralNetwork:
     def init_weights_from_input_to_hidden(self, weights):
         index = 0
         for h in range(len(self.hidden_layer.neurons)):
-            for i in range(self.number_of_input):
+            for _ in range(self.number_of_input):
                 self.hidden_layer.neurons[h].weights.append(weights[index])
                 index += 1
 
     def init_weights_from_hidden_to_output(self, weights):
         index = 0
         for o in range(len(self.output_layer.neurons)):
-            for h in range(len(self.hidden_layer.neurons)):
+            for _ in range(self.number_of_hidden):
                 self.output_layer.neurons[o].weights.append(weights[index])
                 index += 1
 
@@ -179,6 +179,81 @@ def read_data(input_file):
     return data
 
 
+def print_confusion_matrix(actuals_and_predictions):
+    predictions = list(
+        set(
+            list(
+                map(
+                    lambda actual_and_prediction: actual_and_prediction[1],
+                    actuals_and_predictions,
+                )
+            )
+        )
+    )
+
+    actuals = list(
+        set(
+            list(
+                map(
+                    lambda actual_and_prediction: actual_and_prediction[0],
+                    actuals_and_predictions,
+                )
+            )
+        )
+    )
+
+    space_adjust = (
+        max([len(string) for string in actuals + predictions]) + len("Predicted") + 5
+    )
+
+    print("".ljust(space_adjust), end="")
+    for prediction in predictions:
+        print("Predicted " + prediction.ljust(space_adjust), end="")
+    print("\n")
+
+    for actual in actuals:
+        print("Actual " + actual.ljust(space_adjust), end="")
+        for prediction in predictions:
+            count = len(
+                [
+                    actuals_and_predictions
+                    for actual_and_prediction in actuals_and_predictions
+                    if actual_and_prediction[0] == actual
+                    and actual_and_prediction[1] == prediction
+                ]
+            )
+
+            print(
+                str(count)
+                + " / "
+                + str(len(actuals_and_predictions)).ljust(space_adjust),
+                end="",
+            )
+
+        print("\n")
+
+
+def scatter_points(true_predicted_points, false_predicted_points):
+    plt.scatter(
+        [tup[0] for tup in true_predicted_points],
+        [tup[1] for tup in true_predicted_points],
+        color="green",
+        label="Correctly classified",
+        marker="+",
+    )
+
+    plt.scatter(
+        [tup[0] for tup in false_predicted_points],
+        [tup[1] for tup in false_predicted_points],
+        color="red",
+        label="Incorrectly classified",
+        marker="_",
+    )
+
+    plt.legend()
+    plt.show()
+
+
 if __name__ == "__main__":
     input_file = open("./iris.data", "r")
     data = read_data(input_file)
@@ -187,7 +262,6 @@ if __name__ == "__main__":
     test_instances = data[0:10]
     classes = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
     training_error_values = []
-    test_error_values = []
 
     neural_network = NeuralNetwork(
         4,
@@ -206,24 +280,45 @@ if __name__ == "__main__":
         total_error = neural_network.train(training_instances)
         training_error_values.append(total_error)
 
+    plt.plot(array(training_error_values))
+    plt.title("Error as function of epochs")
+    plt.show()
     print("######################################################\n")
 
     print("######################Validation######################")
+    true_predicted_points = []
+    false_predicted_points = []
+    actuals_and_predictions = []
     error_count = 0
     for instance in training_instances:
         output = neural_network.feed_forward(instance[0])
-        decision = classes[output.index(max(output))]
+        prediction = classes[output.index(max(output))]
 
-        if decision != instance[1]:
+        actuals_and_predictions.append((instance[1], prediction))
+
+        if prediction != instance[1]:
+            false_predicted_points.append(
+                (
+                    instance[0][0] + instance[0][1],
+                    instance[0][2] + instance[0][3],
+                )
+            )
             error_count += 1
+        else:
+            true_predicted_points.append(
+                (
+                    instance[0][0] + instance[0][1],
+                    instance[0][2] + instance[0][3],
+                )
+            )
 
-        colored_decision = (
-            "\033[1m\033[91m" + str(decision) + "\033[0m"
-            if decision != instance[1]
-            else "\033[1m\033[92m" + str(decision) + "\033[0m"
+        colored_prediction = (
+            "\033[1m\033[91m" + str(prediction) + "\033[0m"
+            if prediction != instance[1]
+            else "\033[1m\033[92m" + str(prediction) + "\033[0m"
         )
 
-        print(str(instance) + " " + str(output) + " -> " + colored_decision)
+        print(str(instance) + " " + str(output) + " -> " + colored_prediction)
 
     validation_error = error_count / len(training_instances)
     print(
@@ -233,24 +328,45 @@ if __name__ == "__main__":
         + "%"
         + "\033[0m"
     )
+
+    print_confusion_matrix(actuals_and_predictions)
+    scatter_points(true_predicted_points, false_predicted_points)
     print("######################################################\n")
 
     print("######################Test######################")
+    actuals_and_predictions = []
+    true_predicted_points = []
+    false_predicted_points = []
     error_count = 0
     for test_instance in test_instances:
         output = neural_network.feed_forward(test_instance[0])
-        decision = classes[output.index(max(output))]
+        prediction = classes[output.index(max(output))]
 
-        if decision != test_instance[1]:
+        actuals_and_predictions.append((test_instance[1], prediction))
+
+        if prediction != test_instance[1]:
+            false_predicted_points.append(
+                (
+                    test_instance[0][0] + test_instance[0][1],
+                    test_instance[0][2] + test_instance[0][3],
+                )
+            )
             error_count += 1
+        else:
+            true_predicted_points.append(
+                (
+                    test_instance[0][0] + test_instance[0][1],
+                    test_instance[0][2] + test_instance[0][3],
+                )
+            )
 
-        colored_decision = (
-            "\033[1m\033[91m" + str(decision) + "\033[0m"
-            if decision != test_instance[1]
-            else "\033[1m\033[92m" + str(decision) + "\033[0m"
+        colored_prediction = (
+            "\033[1m\033[91m" + str(prediction) + "\033[0m"
+            if prediction != test_instance[1]
+            else "\033[1m\033[92m" + str(prediction) + "\033[0m"
         )
 
-        print(str(test_instance) + " " + str(output) + " -> " + colored_decision)
+        print(str(test_instance) + " " + str(output) + " -> " + colored_prediction)
 
     test_error = error_count / len(test_instances)
     print(
@@ -260,7 +376,7 @@ if __name__ == "__main__":
         + "%"
         + "\033[0m"
     )
-    print("################################################")
 
-    plt.plot(array(training_error_values))
-    plt.show()
+    print_confusion_matrix(actuals_and_predictions)
+    scatter_points(true_predicted_points, false_predicted_points)
+    print("################################################")
