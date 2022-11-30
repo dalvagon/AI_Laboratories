@@ -1,11 +1,13 @@
+from qAlgo import QLearning
 from qTable import QTable
-from cliff import Cliff
+from board import Board
 
 if __name__ == "__main__":
-    cliff = Cliff()
-    cliff.show()
-    cliff.next_pos("right")
-    print(cliff.get_reward())
+    board = Board()
 
-    qTable = QTable()
+    qTable = QTable(board)
     qTable.show()
+    qTable.init_QTable()
+    qTable.show()
+
+    qLearning = QLearning(qTable)
