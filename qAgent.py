@@ -30,14 +30,17 @@ class QAgent:
             else:
                 action = self.get_optimal_action()
 
-            # Update Q
+            # Get next position
             nxt_pos = self.board.get_next_pos(self.pos, action)
+            # End iteration if win state is reached
             if nxt_pos == self.WIN_STATE:
                 self.pos = self.START
                 break
 
+            # Get the current q value
             curr_q = self.qTable[self.pos][self.ACTIONS.index(action)]
 
+            # Update the current q value: current_q = current_q + lr * (reward + dicount * max(q') - current_q)
             self.qTable[self.pos][self.ACTIONS.index(action)] += self.LEARNING_RATE * (
                 self.board.get_reward(nxt_pos)
                 + self.DISCOUNT * max([q for q in self.qTable[nxt_pos] if q != None])
@@ -46,19 +49,21 @@ class QAgent:
 
             # Update the position
             if self.board.get_reward(nxt_pos) == -100:
-                self.pos = self.START
+                self.pos = self.START  # Go to start if agent falls off cliff
             else:
-                self.pos = nxt_pos
+                self.pos = nxt_pos  # Go to next state
 
         # Update epsilon
         if self.epsilon >= 0.15:
             self.epsilon -= 0.05
 
+    # Returns the action with the biggest Q given the current position
     def get_optimal_action(self):
         max_q = max([q for q in self.qTable[self.pos] if q != None])
 
         return self.ACTIONS[self.qTable[self.pos].index(max_q)]
 
+    # Returns a random action given the current position
     def get_random_action(self):
         return random.choice(
             [
@@ -71,6 +76,7 @@ class QAgent:
     def print_qTable(self):
         pprint(self.qTable)
 
+    # Return the path taken by the agent
     def get_path(self):
         state = self.START
         path = {}
