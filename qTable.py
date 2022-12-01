@@ -7,10 +7,13 @@ class QTable:
         self.actions = ["up", "right", "down", "left"]
         self.board = board
         self.qTable = {}
+        for row in range(len(self.board.cells)):
+            for col in range(len(self.board.cells[0])):
+                self.qTable[(row, col)] = [0 for _ in self.actions]
 
     def init_QTable(self):
-        for row in range(len(self.board.board)):
-            for col in range(len(self.board.board[0])):
+        for row in range(len(self.board.cells)):
+            for col in range(len(self.board.cells[0])):
                 self.qTable[(row, col)] = [
                     self.board.get_reward(nxt_pos)
                     for nxt_pos in [

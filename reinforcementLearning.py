@@ -6,7 +6,6 @@ if __name__ == "__main__":
     board = Board()
 
     qTable = QTable(board)
-    qTable.show()
     qTable.init_QTable()
     qTable.show()
 

@@ -10,11 +10,11 @@ class Board:
 
         self.end = False
         self.pos = self.START
-        self.board = [
+        self.cells = [
             [0 for _ in range(self.BOARD_COLS)] for _ in range(self.BOARD_ROWS)
         ]
         for col in range(1, 11):
-            self.board[3][col] = -1
+            self.cells[3][col] = -1
 
     def get_next_pos(self, pos, act):
         if act == "up":
@@ -40,7 +40,7 @@ class Board:
         if pos == self.WIN_STATE:
             return 0
 
-        if self.board[pos[0]][pos[1]] == 0:
+        if self.cells[pos[0]][pos[1]] == 0:
             return -1
 
         return -100
@@ -50,9 +50,9 @@ class Board:
             print("-------------------------------------------------")
             out = "| "
             for j in range(0, self.BOARD_COLS):
-                if self.board[i][j] == -1:
+                if self.cells[i][j] == -1:
                     token = "*"
-                if self.board[i][j] == 0:
+                if self.cells[i][j] == 0:
                     token = "0"
                 if (i, j) == self.pos:
                     token = "S"
