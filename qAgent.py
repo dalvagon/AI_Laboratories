@@ -1,8 +1,5 @@
 from pprint import pprint
 import random
-import sys
-
-sys.setrecursionlimit(5000)
 
 
 class QAgent:
@@ -11,7 +8,7 @@ class QAgent:
         self.WIN_STATE = (3, 11)
         self.ACTIONS = ["up", "right", "down", "left"]
         self.LEARNING_RATE = 0.9
-        self.DISCOUNT = 0.1
+        self.DISCOUNT = 1
         self.epsilon = 1
 
         self.board = board
@@ -23,6 +20,7 @@ class QAgent:
         self.init_QTable()
 
     def train(self):
+        reward = 0
         while True:
             # Select next action
             if random.uniform(0, 1) < self.epsilon:
@@ -32,6 +30,8 @@ class QAgent:
 
             # Get next position
             nxt_pos = self.board.get_next_pos(self.pos, action)
+            # Update the rewards array
+            reward += self.board.get_reward(nxt_pos)
             # End iteration if win state is reached
             if nxt_pos == self.WIN_STATE:
                 self.pos = self.START
@@ -56,6 +56,8 @@ class QAgent:
         # Update epsilon
         if self.epsilon >= 0.15:
             self.epsilon -= 0.05
+
+        return reward
 
     # Returns the action with the biggest Q given the current position
     def get_optimal_action(self):
@@ -91,6 +93,8 @@ class QAgent:
             if state == self.WIN_STATE:
                 path[state] = step
                 break
+
+            print(state)
 
         return path
 
