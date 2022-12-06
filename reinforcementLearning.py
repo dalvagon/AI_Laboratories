@@ -2,6 +2,7 @@ from numpy import array
 from qAgent import QAgent
 from board import Board
 import matplotlib.pyplot as plt
+from pprint import pprint
 
 if __name__ == "__main__":
     board = Board()
@@ -19,3 +20,4 @@ if __name__ == "__main__":
 
     agent.print_qTable()
     board.show(agent.get_path())
+    pprint(agent.get_policy())

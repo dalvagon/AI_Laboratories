@@ -7,7 +7,7 @@ class QAgent:
         self.START = (3, 0)
         self.WIN_STATE = (3, 11)
         self.ACTIONS = ["up", "right", "down", "left"]
-        self.LEARNING_RATE = 0.9
+        self.LEARNING_RATE = 0.8
         self.DISCOUNT = 1
         self.epsilon = 1
 
@@ -30,7 +30,7 @@ class QAgent:
 
             # Get next position
             nxt_pos = self.board.get_next_pos(self.pos, action)
-            # Update the rewards array
+            # Update the reward
             reward += self.board.get_reward(nxt_pos)
             # End iteration if win state is reached
             if nxt_pos == self.WIN_STATE:
@@ -94,9 +94,16 @@ class QAgent:
                 path[state] = step
                 break
 
-            print(state)
-
         return path
+
+    def get_policy(self):
+        policy = {}
+        for state, qs in self.qTable.items():
+            policy[state] = self.ACTIONS[
+                self.qTable[state].index(max([q for q in qs if q != None]))
+            ]
+
+        return policy
 
     def init_rewards(self):
         for row in range(len(self.board.cells)):
