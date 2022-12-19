@@ -1,4 +1,5 @@
 from ontology import Ontology
+from util import replace_underscore
 from wordnet import Wordnet
 
 if __name__ == "__main__":
@@ -9,7 +10,6 @@ if __name__ == "__main__":
     ontology.print_relations()
     ontology.generate_questions_synonyms()
 
-    wordnet = Wordnet()
-    #input_word = input("Enter a word: ")
-    #wordnet.getSynsets(input_word)
-   # wordnet.getSynoyms(input_word)
+    # wordnet = Wordnet()
+    # print(wordnet.get_synonyms("compass"))
+    # print(wordnet.get_synonyms("range"))

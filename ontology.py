@@ -3,6 +3,7 @@ import re
 
 import rdflib
 from colors import MAGENTA, BLUE, CYAN, GREEN, YELLOW, RED, ENDC, BOLD, UNDERLINE
+from util import split_by_capital_letter
 from wordnet import Wordnet
 
 
@@ -11,6 +12,7 @@ class Ontology:
         self.graph = rdflib.Graph()
         self.relations = []
         self.all_relations = []
+        self.wordnet = Wordnet()
 
     def parse(self, file):
         self.graph.parse(file, format="application/rdf+xml")
@@ -18,17 +20,18 @@ class Ontology:
     def build_relations(self):
         for subject, predicate, obj in self.graph.triples((None, None, None)):
             if (
-                    not isinstance(subject, rdflib.term.BNode)
-                    and not isinstance(obj, rdflib.term.BNode)
-                    and not isinstance(predicate, rdflib.term.BNode)
+                not isinstance(subject, rdflib.term.BNode)
+                and not isinstance(obj, rdflib.term.BNode)
+                and not isinstance(predicate, rdflib.term.BNode)
             ):
                 subject = str(subject).split("#")[-1]
                 predicate = str(predicate).split("#")[-1]
                 obj = str(obj).split("#")[-1]
                 if not str(subject).startswith("has"):
                     self.relations.append((subject, predicate, obj))
-            if (isinstance(subject, rdflib.term.BNode)
-                    and isinstance(obj, rdflib.term.BNode)):
+            if isinstance(subject, rdflib.term.BNode) and isinstance(
+                obj, rdflib.term.BNode
+            ):
                 subject = str(subject).split("#")[-1]
                 predicate = str(predicate).split("#")[-1]
                 obj = str(obj).split("#")[-1]
@@ -57,10 +60,13 @@ class Ontology:
     def search_properties(self, b_node, triple):
         values = []
         for (subject, predicate, obj) in self.all_relations:
-            if str(subject).__eq__(str(b_node)) and predicate == 'allValuesFrom':
+            if str(subject).__eq__(str(b_node)) and predicate == "allValuesFrom":
                 next_subj = obj
                 for (subject, predicate, obj) in self.all_relations:
-                    if str(next_subj).__eq__(str(subject)) and predicate == 'onProperty':
+                    if (
+                        str(next_subj).__eq__(str(subject))
+                        and predicate == "onProperty"
+                    ):
                         triple += (obj,)
                         values = self.search_values(next_subj)
 
@@ -175,31 +181,42 @@ class Ontology:
                                 )
 
     def generate_questions_synonyms(self):
-
         while True:
             print("Would you like a new question? (y/n)")
             answer = input()
             if answer != "y":
                 break
             else:
-
                 type_of_question = random.randint(1, 2)
                 pos = random.randint(0, len(self.relations) - 1)
-                q_subject = self.relations[pos][0]
-                wordnet = Wordnet()
-                split_subject = re.split(r'([A-Z][a-z]+)', q_subject)
-                split_subject = list(filter(None, split_subject))
+                subject = split_by_capital_letter(self.relations[pos][0])
+                predicate = split_by_capital_letter(self.relations[pos][1])
+                obj = split_by_capital_letter(self.relations[pos][2])
                 q_subject = ""
-                print(split_subject)
-                for word in split_subject:
-                    synoq_subject = wordnet.get_synonyms(word)
-                    if len(synoq_subject) > 0:
-                        pos_syno = random.randint(0, len(synoq_subject) - 1)
-                        q_subject += synoq_subject[pos_syno].capitalize()
-                        print(pos_syno, q_subject)
+                q_obj = ""
+                q_predicate = ""
+                for word in subject:
+                    syn = self.wordnet.get_random_syn(word)
+                    if syn:
+                        q_subject += syn.capitalize()
+                    else:
+                        q_subject += word
+                for word in obj:
+                    syn = self.wordnet.get_random_syn(word)
+                    if syn:
+                        q_obj += syn.capitalize()
+                    else:
+                        q_obj += word
+                for word in predicate:
+                    syn = self.wordnet.get_random_syn(word)
+                    if syn:
+                        q_predicate += syn.capitalize()
+                    else:
+                        q_predicate += word
+                print(subject, q_subject)
+                print(predicate, q_predicate)
+                print(obj, q_obj)
 
-                q_predicate = self.relations[pos][1]
-                q_obj = self.relations[pos][2]
                 if type_of_question == 1:
                     print(
                         "What is the relation between "
@@ -215,10 +232,65 @@ class Ontology:
                         + "?"
                     )
                     answer = input()
-                    for (subject, predicate, obj) in self.relations:
-                        if subject == q_subject and obj == q_obj:
-                            if predicate == answer:
+                    self.validate_by_hypernyms(q_subject, answer, q_obj)
+                    for (
+                        subject,
+                        predicate,
+                        obj,
+                    ) in (
+                        self.relations
+                    ):  # check for common synonyms between subject and query subject and between object and query object
+                        if set(
+                            [
+                                syn
+                                for word in split_by_capital_letter(q_subject)
+                                for syn in self.wordnet.get_synonyms(word)
+                            ]
+                        ).issubset(
+                            set(
+                                [
+                                    syn
+                                    for word in split_by_capital_letter(subject)
+                                    for syn in self.wordnet.get_synonyms(word)
+                                ]
+                            )
+                        ) and set(
+                            [
+                                syn
+                                for word in split_by_capital_letter(q_obj)
+                                for syn in self.wordnet.get_synonyms(word)
+                            ]
+                        ).issubset(
+                            set(
+                                [
+                                    syn
+                                    for word in split_by_capital_letter(obj)
+                                    for syn in self.wordnet.get_synonyms(word)
+                                ]
+                            )
+                        ):
+                            if (
+                                set(
+                                    [
+                                        syn
+                                        for word in split_by_capital_letter(answer)
+                                        for syn in self.wordnet.get_synonyms(word)
+                                    ]
+                                ).issubset(
+                                    set(
+                                        [
+                                            syn
+                                            for word in split_by_capital_letter(
+                                                predicate
+                                            )
+                                            for syn in self.wordnet.get_synonyms(word)
+                                        ]
+                                    )
+                                )
+                                or answer == predicate
+                            ):
                                 print(GREEN + BOLD + UNDERLINE + "Correct!" + ENDC)
+                                break
                             else:
                                 print(
                                     RED
@@ -232,6 +304,7 @@ class Ontology:
                                     + predicate
                                     + ENDC
                                 )
+                                break
                 else:
                     print(
                         "Who is related to "
@@ -248,9 +321,55 @@ class Ontology:
                     )
                     answer = input()
                     for (subject, predicate, obj) in self.relations:
-                        if subject == q_subject and predicate == q_predicate:
-                            if obj == answer:
+                        if set(
+                            [
+                                syn
+                                for word in split_by_capital_letter(q_subject)
+                                for syn in self.wordnet.get_synonyms(word)
+                            ]
+                        ).issubset(
+                            set(
+                                [
+                                    syn
+                                    for word in split_by_capital_letter(subject)
+                                    for syn in self.wordnet.get_synonyms(word)
+                                ]
+                            )
+                        ) and set(
+                            [
+                                syn
+                                for word in split_by_capital_letter(q_predicate)
+                                for syn in self.wordnet.get_synonyms(word)
+                            ]
+                        ).issubset(
+                            set(
+                                [
+                                    syn
+                                    for word in split_by_capital_letter(predicate)
+                                    for syn in self.wordnet.get_synonyms(word)
+                                ]
+                            )
+                        ):
+                            if (
+                                set(
+                                    [
+                                        syn
+                                        for word in split_by_capital_letter(answer)
+                                        for syn in self.wordnet.get_synonyms(word)
+                                    ]
+                                ).issubset(
+                                    set(
+                                        [
+                                            syn
+                                            for word in split_by_capital_letter(obj)
+                                            for syn in self.wordnet.get_synonyms(word)
+                                        ]
+                                    )
+                                )
+                                or answer == obj
+                            ):
                                 print(GREEN + BOLD + UNDERLINE + "Correct!" + ENDC)
+                                break
                             else:
                                 print(
                                     RED
@@ -264,3 +383,48 @@ class Ontology:
                                     + obj
                                     + ENDC
                                 )
+                                break
+
+    def validate_by_hypernyms(self, q_subject, answer, q_obj):
+        q_subject_h = set(
+            [
+                hypernym
+                for word in split_by_capital_letter(q_subject)
+                for hypernym in self.wordnet.get_hypernyms(word)
+            ]
+        )
+
+        q_obj_h = set(
+            [
+                hypernym
+                for word in split_by_capital_letter(q_obj)
+                for hypernym in self.wordnet.get_hypernyms(word)
+            ]
+        )
+
+        for (subject, predicate, obj) in self.relations:
+            subject_h = set(
+                [
+                    hypernym
+                    for word in split_by_capital_letter(subject)
+                    for hypernym in self.wordnet.get_hypernyms(word)
+                ]
+            )
+
+            obj_h = set(
+                [
+                    hypernym
+                    for word in split_by_capital_letter(obj)
+                    for hypernym in self.wordnet.get_hypernyms(word)
+                ]
+            )
+
+            if subject_h & q_subject_h and obj_h & q_obj_h:
+                if predicate == answer:
+                    print(
+                        "Validated by hypernyms: ",
+                        subject_h & q_subject_h,
+                        " and ",
+                        obj_h & q_obj_h,
+                    )
+                    break
