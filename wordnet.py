@@ -20,7 +20,9 @@ class Wordnet:
     def get_synonyms(self, word):
         syns = wordnet.synonyms(word)
         if syns:
-            return [replace_underscore(syn).capitalize() for syn in syns[0]]
+            return [
+                replace_underscore(syn).capitalize() for syn in syns[self.SYNSET_INDEX]
+            ]
 
         return []
 
@@ -28,7 +30,7 @@ class Wordnet:
         syns = wordnet.synsets(word)
 
         if syns:
-            hypernyms = syns[0].hypernyms()
+            hypernyms = syns[self.SYNSET_INDEX].hypernyms()
             return [
                 replace_underscore(hypernym.name().split(".")[0].capitalize())
                 for hypernym in hypernyms
@@ -40,7 +42,7 @@ class Wordnet:
         syns = wordnet.synsets(word)
 
         if syns:
-            hyponyms = syns[0].hyponyms()
+            hyponyms = syns[self.SYNSET_INDEX].hyponyms()
             return [
                 replace_underscore(hyponym.name().split(".")[0].capitalize())
                 for hyponym in hyponyms

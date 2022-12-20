@@ -189,7 +189,7 @@ class Ontology:
                                     RED
                                     + BOLD
                                     + UNDERLINE
-                                    + "Incorrect!"
+                                    + "!"
                                     + ENDC
                                     + " A correct answer is "
                                     + BOLD
@@ -242,7 +242,7 @@ class Ontology:
                                     RED
                                     + BOLD
                                     + UNDERLINE
-                                    + "Incorrect!"
+                                    + "!"
                                     + ENDC
                                     + " A correct answer is "
                                     + BOLD
