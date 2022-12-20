@@ -11,5 +11,5 @@ if __name__ == "__main__":
     ontology.generate_questions_synonyms()
 
     # wordnet = Wordnet()
-    # print(wordnet.get_synonyms("compass"))
-    # print(wordnet.get_synonyms("range"))
+    # print(wordnet.get_hypernyms("color"))
+    # print(wordnet.get_hyponyms("color"))
