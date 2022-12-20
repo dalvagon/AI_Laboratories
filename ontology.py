@@ -183,6 +183,7 @@ class Ontology:
                                 or answer == p.lower().capitalize()
                             ):
                                 print(GREEN + BOLD + UNDERLINE + "Correct!" + ENDC)
+                                break
                             else:
                                 print(
                                     RED
@@ -235,6 +236,7 @@ class Ontology:
                                 or answer == o.lower().capitalize()
                             ):
                                 print(GREEN + BOLD + UNDERLINE + "Correct!" + ENDC)
+                                break
                             else:
                                 print(
                                     RED
